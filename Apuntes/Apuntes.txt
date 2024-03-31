@@ -1,0 +1,30 @@
+# inicializamos la funcion de costo
+def calcularCosto(X, y, theta, lambda_reg):
+  # Inicializamos algunos valores utiles
+  m = y.shape[0] # número de ejemplos de entrenamiento
+
+  J = 0  # resultado del costo j(0)
+  h = np.dot(X, theta) # hipotesis calculado por el producto
+
+  # modificar la variable J donde sea una formula para la regularizacion
+  J = (1 / (2 * m)) * np.sum(np.square(np.dot(X, theta) - y)) + (lambda_reg  * np.sum(np.square(theta[1:])))
+
+  return J
+
+
+
+
+#funcion por el Descenso por el Gradiente
+def calcularDescensoGradiente(X, y, theta, alpha, numero_iteraciones, lambda_reg):
+  m = y.shape[0] #33077 numero de ejemplos de entrenamiento
+  theta = theta.copy() # realiza una copia de theta, el cual será acutalizada por el descenso por el gradiente
+
+  J_history = []
+
+  for i in range(numero_iteraciones):
+    # theta = theta - (alpha / m) * (np.dot(X, theta) - y).dot(X)
+    # theta = theta * (1 - (alpha * lambda_reg) / m) - (alpha / m) * np.sum((np.dot(X, theta) - y).dot(X))
+    theta = theta * (1 - (alpha * lambda_reg) / m) - (alpha / m) * (np.dot(X, theta) - y).dot(X)
+    J_history.append(calcularCosto(X, y, theta, lambda_reg))
+
+  return theta, J_history
