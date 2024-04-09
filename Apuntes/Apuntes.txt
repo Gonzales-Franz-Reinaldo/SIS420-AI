@@ -28,3 +28,27 @@ def calcularDescensoGradiente(X, y, theta, alpha, numero_iteraciones, lambda_reg
     J_history.append(calcularCosto(X, y, theta, lambda_reg))
 
   return theta, J_history
+
+
+
+
+
+CLASE DE SIS420 LAB-05
+
+
+La funcion de activacion en redes neuronales  es la funcion de Sigmoide
+Archivo de guia = 01 redes_neuronales_01
+
+
+cros error -> para la logistica multiclase
+
+- weights son los pesos 
+- numero de label 10 -> los capas de salida
+
+theta1, theta2, las vector de salida, de cada capa oculta
+
+forwar -> predecir
+batwar -> entrenar
+
+
+Ver el cuadernillo 04, 05, 05.5, 0.6 y 05 perceptron
