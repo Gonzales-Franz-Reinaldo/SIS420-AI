@@ -53,3 +53,103 @@ batwar -> entrenar
 
 Ver el cuadernillo 04, 05, 05.5, 0.6 y 05 perceptron
 
+
+
+
+
+
+
+
+
+
+Clase LAB1 29/2/24
+
+Normalizar es llevar los x de columnas a 0 y 1 para que se puedan predicir mas rápido, 
+- en sí preparar datos.
+- poner las los datos de las columnas a una escala entre 0 y 1
+
+
+Para encontrar los valores de theta se aplica el decenso por el gradiente, apartir de la funcion del costo.
+
+alpha = coeficiente de aprendizaje, lo que hace es que la derivada del costo es la tangente. Es cuanto aumneto o resto del errror que surger del costo para que la pendiente se baje para que sea horizontal hasta llegar a un punto clave.
+
+Sobre LAB01 
+- Por lo menos hacer 10 predicciones, si faltan datos aumentar sino quitar para ver diferentes predicciones.
+
+ejemplos de explicacion:
+ los mejores de theta fueron
+ los mejores metodos que se utilizó
+ que cosas se aplicó, etc.
+
+
+
+
+Clase de LAB de SIS420
+Redes Neuronales
+
+ver dataset 03_redes_neuronales_vinos
+badwar -> ir hacia atras
+MLP = multilayer pecsectron
+Librerias
+TensorFlow
+Keras
+Pythorch
+
+Full conecction: es cuando estan completamente concetado con todas las capas
+
+
+
+
+
+
+SIS420 clase de LAB-02
+CLASIFICACIÓN
+1: Buscar datasets
+2: Aplicar pandas para el pre-procesamiento
+3: Determinar thetas para un modelos de clasificación
+4: Usar 80% del dataset para entrenar y usar el 20% para probar
+5: Explicar resultados y procedimientos
+
+
+Tarea de SIS311
+Recibir dos dados y sumar y el resultado debe mostrar en el cuadro y despues los dados deben ir al final
+
+buscar un grafico bmp(jpg)  para el dado cada uno debe tener un numero 1, 2, 3, 4, 5
+Sumar los dos valores de los dos dados
+
+
+
+
+
+
+
+
+
+SIS420 LAB-03
+
+Sacar el 70 y 30 % de cada clase 
+
+
+
+SIS420 	CLASE DE LAB
+
+Que pasa si tengo pocos datos para entrenar? que es lo que pasaria? con la hipotesis, costo, que pasa con la grafica.
+- Nuestra hipotesis es nuestra y predicha
+- Lo que desamos calcular en un modelo es calcular thetas 
+- Cual funcion de costo par ala regresión polinómica es la mis cuaders error
+
+
+Tema de la Regularización
+- Con pocas iteraciones en un entrenamiento el costo es alto
+- Cuando tengo pocos datos y realizo varias iteraciones entonces el modelo empieca memorizar los datos de entrenamiento
+- No se puede llegar a un valor de cero porque es imposible porque no hay un valor de 0 que represente a todas las thetas 
+- Porque tienen que haber la generalización.
+-por que ocurre el Overfit - High, ocurre cuando tiene varioa variables de x y pocos datos y a la ves se realiza varias veces el entrenamiento con los mismos datos
+-Para que no ocuarra eso podemos volver los valores de theta mas chiquitos y que se pueda reducir a pocos de lo polinomial osea quitar las caracteristicas.
+
+La regularizacion se puede hacer es que sus thetas sea bien chicas, mantener las caracteristicas y reducir la magnitud 
+- las thetas deben ser bien cercanas a cero pero no debe ser cero
+- En la regularizacion multiplicamos los thetas chiquitas al cuadrado con un numero mayor como lamda sumando con el costo.
+- Que pasa si lamda es muy grande? entonces calculara valores muy chiquitos. 
+con esto evitamos el Overfit - High
+Binary Cross-Entropy Loss
