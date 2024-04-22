@@ -52,3 +52,4 @@ batwar -> entrenar
 
 
 Ver el cuadernillo 04, 05, 05.5, 0.6 y 05 perceptron
+
