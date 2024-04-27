@@ -153,3 +153,10 @@ La regularizacion se puede hacer es que sus thetas sea bien chicas, mantener las
 - Que pasa si lamda es muy grande? entonces calculara valores muy chiquitos. 
 con esto evitamos el Overfit - High
 Binary Cross-Entropy Loss
+
+
+En python la funcion revel() hace que me lo convierta una matriz a un solo vector para manejar mas facil 
+
+Estudiar paythors
+
+Paythors_jahs_001 ver ese cuadernillo
