@@ -27,6 +27,7 @@ def run(is_training=True, render=False):
 
     epsilon = 1         # 1 = 100% random actions
     epsilon_decay_rate = 0.00001 # epsilon decay rate
+    # epsilon_decay_rate = 0.0001 # epsilon decay rate
     rng = np.random.default_rng()   # random number generator
 
     rewards_per_episode = []
@@ -46,6 +47,7 @@ def run(is_training=True, render=False):
 
         rewards = 0
 
+        # while not terminated and rewards < 10000:
         while not terminated and rewards < 10000:
 
             if is_training and rng.random() < epsilon:

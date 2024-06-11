@@ -4,14 +4,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-def plot_q_table(qtable, states):
+def plot_q_table(Q_table, states):
     plt.figure(figsize=(12, 8))
     for state in states:
-        ax = sns.heatmap(qtable[state].reshape(1, -1), annot=True, cmap="YlGnBu", cbar=False, linewidths=.5, linecolor='black')
+        ax = sns.heatmap(Q_table[state].reshape(1, -1), annot=True, cmap="YlGnBu", cbar=False, linewidths=.5, linecolor='black')
         ax.set_title(f"State {state}")
         ax.set_yticklabels(['Actions'])
         ax.set_xticklabels(['South', 'North', 'East', 'West', 'Pickup', 'Dropoff'])
         plt.show()
+
 
 def main():
     env = gym.make("Taxi-v3", render_mode="human")
@@ -19,7 +20,7 @@ def main():
     # Initialize the q-table
     state_size = env.observation_space.n
     action_size = env.action_space.n
-    qtable = np.zeros((state_size, action_size))
+    Q_table = np.zeros((state_size, action_size))
 
     # Set the number of episodes
     EPISODES = 1000
@@ -42,7 +43,7 @@ def main():
             if random.uniform(0, 1) < epsilon:
                 action = env.action_space.sample()
             else:
-                action = np.argmax(qtable[state, :])
+                action = np.argmax(Q_table[state, :])
 
             if not isinstance(action, int):
                 action = int(action)
@@ -57,9 +58,8 @@ def main():
             if isinstance(new_state, tuple):
                 new_state = new_state[0]
 
-            qtable[state, action] = qtable[state, action] + learning_rate * (
-                reward + discount_rate * np.max(qtable[new_state, :]) - qtable[state, action]
-            )
+            # Formula para calcular la Q para los valores de los estados 
+            Q_table[state, action] = Q_table[state, action] + learning_rate * (reward + discount_rate * np.max(Q_table[new_state, :]) - Q_table[state, action])
 
             state = new_state
             total_rewards += reward
@@ -68,7 +68,7 @@ def main():
             print(f"Episode: {episode}, Step: {step}")
             print(f"State: {state}, Action: {action}, Reward: {reward}")
             print("Q-table:")
-            print(qtable)
+            print(Q_table)
 
             if done or truncated:
                 break
@@ -82,11 +82,11 @@ def main():
 
     # Print the final Q-table
     print("Final Q-table:")
-    print(qtable)
+    print(Q_table)
 
     # Plotting the Q-table for selected states
     example_states = [0, 10, 50, 100, 200]
-    plot_q_table(qtable, example_states)
+    plot_q_table(Q_table, example_states)
 
     # Run the trained agent
     state = env.reset()
@@ -100,7 +100,7 @@ def main():
         print(f"TRAINED AGENT")
         print("Step {}".format(s + 1))
 
-        action = np.argmax(qtable[state, :])
+        action = np.argmax(Q_table[state, :])
 
         if not isinstance(action, int):
             action = int(action)
@@ -126,5 +126,7 @@ def main():
 
     env.close()
 
+
+# Función principal para ejecutar el modelo 
 if __name__ == "__main__":
     main()
