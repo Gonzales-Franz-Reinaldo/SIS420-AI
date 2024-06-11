@@ -56,10 +56,7 @@ class Car:
         self.radars.append([(x, y), dist])
 
     def update(self, map):
-        #check speed
         self.speed = 15
-
-        #check position
         self.rotate_surface = self.rot_center(self.surface, self.angle)
         self.pos[0] += math.cos(math.radians(360 - self.angle)) * self.speed
         if self.pos[0] < 20:
@@ -75,7 +72,6 @@ class Car:
         elif self.pos[1] > screen_height - 120:
             self.pos[1] = screen_height - 120
 
-        # caculate 4 collision points
         self.center = [int(self.pos[0]) + 50, int(self.pos[1]) + 50]
         len = 40
         left_top = [self.center[0] + math.cos(math.radians(360 - (self.angle + 30))) * len, self.center[1] + math.sin(math.radians(360 - (self.angle + 30))) * len]
@@ -112,8 +108,6 @@ class Car:
         return rot_image
 
 def run_car(genomes, config):
-
-    # Init NEAT
     nets = []
     cars = []
 
@@ -121,11 +115,8 @@ def run_car(genomes, config):
         net = neat.nn.FeedForwardNetwork.create(g, config)
         nets.append(net)
         g.fitness = 0
-
-        # Init my cars
         cars.append(Car())
 
-    # Init my game
     pygame.init()
     screen = pygame.display.set_mode((screen_width, screen_height))
     clock = pygame.time.Clock()
@@ -133,8 +124,6 @@ def run_car(genomes, config):
     font = pygame.font.SysFont("Arial", 30)
     map = pygame.image.load('map.png')
 
-
-    # Main loop
     global generation
     generation += 1
     while True:
@@ -142,8 +131,6 @@ def run_car(genomes, config):
             if event.type == pygame.QUIT:
                 sys.exit(0)
 
-
-        # Input my data and get result from network
         for index, car in enumerate(cars):
             output = nets[index].activate(car.get_data())
             i = output.index(max(output))
@@ -152,7 +139,6 @@ def run_car(genomes, config):
             else:
                 car.angle -= 10
 
-        # Update car and fitness
         remain_cars = 0
         for i, car in enumerate(cars):
             if car.get_alive():
@@ -160,11 +146,9 @@ def run_car(genomes, config):
                 car.update(map)
                 genomes[i][1].fitness += car.get_reward()
 
-        # check
         if remain_cars == 0:
             break
 
-        # Drawing
         screen.blit(map, (0, 0))
         for car in cars:
             if car.get_alive():
@@ -183,19 +167,26 @@ def run_car(genomes, config):
         pygame.display.flip()
         clock.tick(0)
 
+
 if __name__ == "__main__":
-    # Set configuration file
-    config_path = "./config-feedforward.txt"
+    config_path = os.path.join(os.path.dirname(__file__), "config-feedforward.txt")
     config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
                                 neat.DefaultSpeciesSet, neat.DefaultStagnation, config_path)
 
-    # Create core evolution algorithm class
     p = neat.Population(config)
-
-    # Add reporter for fancy statistical result
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-
-    # Run NEAT
     p.run(run_car, 1000)
+
+
+# if __name__ == "__main__":
+#     config_path = "./config-feedforward.txt"
+#     config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
+#                                 neat.DefaultSpeciesSet, neat.DefaultStagnation, config_path)
+
+#     p = neat.Population(config)
+#     p.add_reporter(neat.StdOutReporter(True))
+#     stats = neat.StatisticsReporter()
+#     p.add_reporter(stats)
+#     p.run(run_car, 1000)

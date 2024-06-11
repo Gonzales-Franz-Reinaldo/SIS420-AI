@@ -33,11 +33,11 @@ aisles[2] = [1, 7, 9]
 aisles[3] = [i for i in range(1, 8)]
 aisles[3].append(9)
 aisles[4] = [3, 7]
-aisles[5] = [i for i in range(1, 11)]
+aisles[5] = [i for i in range(11)]
 aisles[6] = [5]
 aisles[7] = [i for i in range(1, 10)]
 aisles[8] = [3, 7]
-aisles[9] = [i for i in range(1, 11)]
+aisles[9] = [i for i in range(11)]
 
 # Establece las recompensas para todas las ubicaciones de los pasillos (es decir, cuadros blancos)
 for row_index in range(1, 10):
@@ -126,4 +126,92 @@ epsilon = 0.9 # Epsilon greedy, el porcetaje de veces que debemos tomar la acci�
 discount_factor = 0.9 # Factor de descuento para las recompensas futuras
 learning_rate = 0.9 # Tasa de aprendizaje para actualizar la tabla Q, la velocidad a la que el Agente de IA debe aprender
 
-# Minuto 5:20
+# Ejecutar 1000 episodios de entrenamiento
+for episode in range(1000):
+    # Obten la ubicación de inicioparaeste episodio 
+    row_index, column_index = get_starting_location()
+    
+    # Continua tomando acciones (es decir , moviendote) hasta que llegue a un estado terminal 
+    # (es decir, hasta que llegue al área de empaque del artículo o te choques con una ubicación de almacenamiento de artículos)
+    while not is_terminal_state(row_index, column_index):
+        # Elige que acción tomar (es decir , hacia donde moverte a continuación)
+        action_index = get_next_action(row_index, column_index, epsilon)
+        
+        # Reelizar la acción elegida y transiciona al siguiente estado (es decir muevete a la siguiente ubicación)
+        old_row_index, old_column_index = row_index, column_index # Guarda los indices de fila y columna anteriores
+        row_index, column_index = get_next_location(row_index, column_index, action_index)
+        
+        # Recibe la recompensa por moverte al nuevo estado y calcula la diferencia temporal 
+        reward = rewards[row_index, column_index]
+        old_q_value = Q_values[old_row_index, old_column_index, action_index]
+        temporal_difference = reward + (discount_factor * np.max(Q_values[row_index, column_index])) - old_q_value
+
+        # Actualiza el valor Q para el par estado-acción anterior
+        new_q_value = old_q_value + (learning_rate * temporal_difference)	
+        Q_values[old_row_index, old_column_index, action_index] = new_q_value
+        
+print("Finalmente, el valor Q para cada par estado-acción es: ")
+print("Training complete!")
+
+# Muestra algunos caminos más cortos 
+print(get_shortes_path(3, 9))  # Comenzamos en al fila 3, columna 9
+print(get_shortes_path(5, 0))  # Comenzamos en al fila 5, columna 0
+print(get_shortes_path(9, 5))  # Comenzamos en al fila 9, columna 5
+
+# Muestra un ejemplo de camino más corto revertido
+path = get_shortes_path(5, 1) # Ir la fila 5 y clumna 2
+path.reverse()
+print(path)
+
+# Obtenen la matriz de recompensas
+rewards_matrix = rewards
+
+# Ejecuta el algoritmo de entrenamiento y obten los valores de Q 
+
+Q_values_matrix = np.max(Q_values, axis=2)
+
+# Muestra la natriz de recompensas como una imagen utilizando matplotlib
+# Muestra la matriz de valores Q como una imagen  utilizando matplotlib
+plt.imshow(rewards_matrix, cmap='Blues', interpolation='nearest')
+plt.title("Rewards Matriz")
+plt.show()
+plt.imshow(Q_values_matrix, cmap='Greens', interpolation='nearest')
+plt.title("Q Values Matriz - Results Matrix")
+plt.show()
+
+# Obten el camino más corto desde el punto de inicio 
+start_row = 9
+start_column = 0
+shortest_path = get_shortes_path(start_row, start_column)
+
+# Crea una matriz vacía para visualizar el recorrido completo 
+shortest_path_full_matrix = np.zeros_like(rewards_matrix)
+
+
+# Marca el camino completo en la matriz 
+for i in range(len(shortest_path) - 1):
+    current_step = shortest_path[i]
+    next_step = shortest_path[i + 1]
+    current_row, current_column = current_step
+    next_row, next_column = next_step
+    shortest_path_full_matrix[current_row, current_column] = 1
+    
+
+# Marca la ubicación final (punto de empaque) en la amtriz
+shortest_path_full_matrix[shortest_path[-1][0], shortest_path[-1][1]] = 1
+
+# Función para actualizar el gráfico en cada cuadro  de animación
+def update_frame(frame):
+    plt.cla()  # limpia el gráfico actual
+    plt.imshow(shortest_path_full_matrix, cmap='copper', interpolation='nearest')
+    plt.title("Full Path from Start")
+    current_step = shortest_path[frame]
+    plt.scatter(current_step[1], current_step[0], marker='o', color='green')
+    
+    
+# Configuración de la animación
+fig = plt.figure()
+ani = animation.FuncAnimation(fig, update_frame, frames=len(shortest_path), interval=500, repeat=False)
+
+# Mostrar la aniamción
+plt.show()
