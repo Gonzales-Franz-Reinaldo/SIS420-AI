@@ -58,6 +58,7 @@ def main():
             if isinstance(new_state, tuple):
                 new_state = new_state[0]
 
+            # Metodo Imcremental
             # Formula para calcular la Q para los valores de los estados 
             Q_table[state, action] = Q_table[state, action] + learning_rate * (reward + discount_rate * np.max(Q_table[new_state, :]) - Q_table[state, action])
 
