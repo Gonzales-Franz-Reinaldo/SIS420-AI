@@ -14,10 +14,11 @@ def train_cliff_walking(episodes):
     discount_factor = 0.95       # Factor de descuento para las recompensas
     epsilon = 1                  # Probabilidad inicial de exploración (acciones aleatorias)
     epsilon_decay_rate = 0.001   # Tasa de decaimiento de epsilon para reducir la exploración con el tiempo
+    min_epsilon = 0.01           # Valor mínimo de epsilon
     rng = np.random.default_rng() # Generador de números aleatorios
 
     # Inicializa un array para almacenar las recompensas obtenidas en cada episodio
-    rewards_por_episode = np.zeros(episodes)
+    rewards_per_episode = np.zeros(episodes)
 
     # Bucle principal de entrenamiento
     for i in range(episodes):
@@ -46,29 +47,33 @@ def train_cliff_walking(episodes):
             state = new_state
 
             # Acumula la recompensa del episodio actual
-            rewards_por_episode[i] += reward
+            rewards_per_episode[i] += reward
+
+            # Imprime detalles del paso actual
+            print(f"Episodio: {i + 1}, Acción: {action}, Recompensa: {reward}, Recompensas Totales: {rewards_per_episode[i]}")
 
             # Renderiza el entorno cada 1000 episodios para visualizar el progreso
             if (i + 1) % 1000 == 0:
                 env.render()
 
         # Reduce epsilon para disminuir la exploración a lo largo del tiempo
-        epsilon = max(epsilon - epsilon_decay_rate, 0)
+        epsilon = max(min_epsilon, epsilon - epsilon_decay_rate)
 
         # Imprime el progreso cada 100 episodios
         if (i + 1) % 100 == 0:
-            print(f"Episodio: {i + 1} - Recompensa acumulada: {rewards_por_episode[i]}")
+            print(f"Episodio: {i + 1} - Recompensa acumulada: {rewards_per_episode[i]}")
 
     # Cierra el entorno al finalizar el entrenamiento
     env.close()
 
     # Imprime la tabla Q final para la inspección
-    print(f"Mejor Q: {q_table}")
+    print("Tabla Q resultante después del entrenamiento:")
+    print(q_table)
 
     # Calcula y muestra la suma de recompensas acumuladas en bloques de 100 episodios
     suma_rewards = np.zeros(episodes)
     for t in range(episodes):
-        suma_rewards[t] = np.sum(rewards_por_episode[max(0, t - 100):(t + 1)])
+        suma_rewards[t] = np.sum(rewards_per_episode[max(0, t - 100):(t + 1)])
         
     plt.plot(suma_rewards)
     plt.xlabel('Episodios')
