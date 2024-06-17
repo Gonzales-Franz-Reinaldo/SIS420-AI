@@ -1,8 +1,6 @@
-
 import gymnasium as gym
 import numpy as np
 import matplotlib.pyplot as plt
-import random
 
 def train(episodes):
     # Inicializa el entorno
@@ -10,12 +8,14 @@ def train(episodes):
 
     # Crea la tabla Q inicializada con ceros para todas las combinaciones estado-acción
     q_table = np.zeros((env.observation_space.n, env.action_space.n))
+    
+    # Contadores para la actualización incremental
+    action_counts = np.zeros((env.observation_space.n, env.action_space.n))
+    rewards_sum = np.zeros((env.observation_space.n, env.action_space.n))
 
-    # Define los parámetros del algoritmo Q-learning
-    learning_rate = 0.3            # Tasa de aprendizaje reducida
-    discount_factor = 0.9          # Factor de descuento
+    # Define los parámetros del algoritmo
     epsilon = 1.0                  # Probabilidad inicial de exploración (acciones aleatorias)
-    epsilon_decay_rate = 0.0003    # Tasa de decaimiento de epsilon reducida para exploración más prolongada
+    epsilon_decay_rate = 0.01     # Tasa de decaimiento de epsilon más rápida
     rng = np.random.default_rng()  # Generador de números aleatorios
 
     # Inicializa un array para almacenar las recompensas obtenidas en cada episodio
@@ -49,8 +49,12 @@ def train(episodes):
             # Realizar la acción y obtiene el nuevo estado y la recompensa
             new_state, reward, terminated, truncated, _ = env.step(action)
 
-            # Actualiza la tabla Q con la nueva información obtenida
-            q_table[state, action] = q_table[state, action] + learning_rate * (reward + discount_factor * np.max(q_table[new_state, :]) - q_table[state, action])
+            # Actualiza el contador de acciones y la suma de recompensas
+            action_counts[state, action] += 1
+            rewards_sum[state, action] += reward
+
+            # Actualiza la tabla Q con la nueva información obtenida (método de acción-valor)
+            q_table[state, action] = rewards_sum[state, action] / action_counts[state, action]
 
             # Actualizar el estado para el siguiente paso
             state = new_state
@@ -62,7 +66,7 @@ def train(episodes):
         rewards_por_episode[i] = reward
 
         # Imprime el progreso cada 50 episodios
-        if (i + 1) % 50 == 0:
+        if (i + 1) % 10 == 0:
             print(f"Episodio: {i + 1} - Recompensa: {rewards_por_episode[i]}")
 
     # Cierra el entorno al finalizar el entrenamiento
@@ -75,7 +79,7 @@ def train(episodes):
     # Calcula y muestra la suma de recompensas acumuladas en bloques de 100 episodios
     suma_rewards = np.zeros(episodes)
     for t in range(episodes):
-        suma_rewards[t] = np.sum(rewards_por_episode[max(0, t - 50) :(t + 1)])
+        suma_rewards[t] = np.sum(rewards_por_episode[max(0, t - 10) :(t + 1)])
 
     plt.plot(suma_rewards)
     plt.xlabel('Episodios')
@@ -84,4 +88,4 @@ def train(episodes):
     plt.show()
 
 if __name__ == "__main__":
-    train(2500)
+    train(7000)  # Aumenta el número de episodios
