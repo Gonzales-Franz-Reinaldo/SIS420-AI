@@ -1,21 +1,20 @@
-
 import gymnasium as gym
 import numpy as np
 import matplotlib.pyplot as plt
-import random
+import pickle
+import os
 
-def train(episodes):
+def train(episodes, save_q_table=True, save_plot=True):
     # Inicializa el entorno
     env = gym.make("Taxi-v3")
 
     # Crea la tabla Q inicializada con ceros para todas las combinaciones estado-acción
     q_table = np.zeros((env.observation_space.n, env.action_space.n))
 
-    # Define los parámetros del algoritmo Q-learning
-    learning_rate = 0.3            # Tasa de aprendizaje reducida
-    discount_factor = 0.9          # Factor de descuento
+    # Define los parámetros del algoritmo
+    learning_rate = 0.1            # Tasa de aprendizaje ajustada
     epsilon = 1.0                  # Probabilidad inicial de exploración (acciones aleatorias)
-    epsilon_decay_rate = 0.0003    # Tasa de decaimiento de epsilon reducida para exploración más prolongada
+    epsilon_decay_rate = 0.001     # Tasa de decaimiento de epsilon ajustada
     rng = np.random.default_rng()  # Generador de números aleatorios
 
     # Inicializa un array para almacenar las recompensas obtenidas en cada episodio
@@ -23,8 +22,8 @@ def train(episodes):
 
     # Bucle principal de entrenamiento
     for i in range(episodes):
-        # Reinicia el entorno cada 100 episodios, alternando entre modos con y sin renderización
-        if (i + 1) % 100 == 0:
+        # Reinicia el entorno cada 500 episodios, alternando entre modos con y sin renderización
+        if (i + 1) % 500 == 0:
             env.close()
             env = gym.make("Taxi-v3", render_mode="human")
         else:
@@ -49,20 +48,21 @@ def train(episodes):
             # Realizar la acción y obtiene el nuevo estado y la recompensa
             new_state, reward, terminated, truncated, _ = env.step(action)
 
-            # Actualiza la tabla Q con la nueva información obtenida
-            q_table[state, action] = q_table[state, action] + learning_rate * (reward + discount_factor * np.max(q_table[new_state, :]) - q_table[state, action])
+            # Actualiza la tabla Q con la nueva información obtenida usando implementación incremental
+            q_table[state, action] += learning_rate * (reward - q_table[state, action])
 
             # Actualizar el estado para el siguiente paso
             state = new_state
 
         # Reduce epsilon para disminuir la exploración a lo largo del tiempo
         epsilon = max(epsilon - epsilon_decay_rate, 0.01)
+        # epsilon = max(epsilon * (1 - epsilon_decay_rate), 0.01)
 
         # Registra la recompensa obtenida en este episodio
         rewards_por_episode[i] = reward
 
-        # Imprime el progreso cada 50 episodios
-        if (i + 1) % 50 == 0:
+        # Imprime el progreso cada 100 episodios
+        if (i + 1) % 100 == 0:
             print(f"Episodio: {i + 1} - Recompensa: {rewards_por_episode[i]}")
 
     # Cierra el entorno al finalizar el entrenamiento
@@ -72,16 +72,55 @@ def train(episodes):
     print("Tabla Q resultante después del entrenamiento:")
     print(q_table)
 
-    # Calcula y muestra la suma de recompensas acumuladas en bloques de 100 episodios
+    # Calcula y muestra la suma de recompensas acumuladas en bloques de 50 episodios
     suma_rewards = np.zeros(episodes)
     for t in range(episodes):
-        suma_rewards[t] = np.sum(rewards_por_episode[max(0, t - 50) :(t + 1)])
+        suma_rewards[t] = np.sum(rewards_por_episode[max(0, t - 100):(t + 1)])
 
     plt.plot(suma_rewards)
     plt.xlabel('Episodios')
     plt.ylabel('Suma de recompensas acumuladas')
     plt.title('Evolución de las recompensas acumuladas durante el entrenamiento')
+    if save_plot:
+        plt.savefig('recompensas_incremental.png')
     plt.show()
 
+    # Guardar la tabla Q en un archivo pkl
+    if save_q_table:
+        with open('taxi_incremental.pkl', 'wb') as f:
+            pickle.dump(q_table, f)
+        print("Tabla Q guardada en 'taxi_incremental.pkl'.")
+
+def exploit(q_table_file='taxi_incremental.pkl', num_runs=10):
+    # Cargar la tabla Q desde el archivo
+    with open(q_table_file, 'rb') as f:
+        q_table = pickle.load(f)
+    print("Tabla Q cargada desde el archivo.")
+
+    for run in range(num_runs):
+        # Inicializa el entorno
+        env = gym.make("Taxi-v3", render_mode="human")
+        state = env.reset()[0]
+        terminated = False
+        truncated = False
+        rewards = 0
+
+        # Exploitation loop
+        while not terminated and not truncated:
+            action = np.argmax(q_table[state, :])
+            new_state, reward, terminated, truncated, _ = env.step(action)
+            rewards += reward
+            state = new_state
+            env.render()
+        
+        print(f"Run {run + 1}: Recompensa total durante la explotación: {rewards}")
+        env.close()
+
 if __name__ == "__main__":
-    train(5000)
+    # Cambia este valor a True para cargar el Q-table y explotar directamente
+    exploit_directly = True
+
+    if exploit_directly and os.path.exists('taxi_incremental.pkl'):
+        exploit(num_runs=10)  # Ajusta el número de ejecuciones de explotación aquí
+    else:
+        train(20000)  # Ajusta el número de episodios para el entrenamiento
