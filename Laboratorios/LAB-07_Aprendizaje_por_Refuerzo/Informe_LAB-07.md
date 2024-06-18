@@ -5,8 +5,8 @@
 
 Implementación de las diferentes estrategias con el entorno [Gymnasium](https://gymnasium.farama.org/) .
 
-Repositorios: [Github_1](https://github.com/sebastianDLL/SIS420_IA) - 
-              [Github_2](https://github.com/Gonzales-Franz-Reinaldo/SIS420-AI)
+Repositorios: [Github - Sebastian Delgadillo](https://github.com/sebastianDLL/SIS420_IA/tree/main/Laboratorios/Laboratorio7 ) - 
+              [Github - Franz Gonzales](https://github.com/Gonzales-Franz-Reinaldo/SIS420-AI/tree/main/Laboratorios/LAB-07_Aprendizaje_por_Refuerzo)
 
 # Balance entre exploración y explotación
 
@@ -19,7 +19,7 @@ Este informe detalla la aplicación y los resultados de varias técnicas de apre
 ## 1. Acción por Valor
 
 Q-learning: Se utilizó una tabla Q inicializada en cero, con un algoritmo que actualiza los valores Q en función de la recompensa inmediata y el valor Q estimado del siguiente estado.
-Parámetros: Tasa de aprendizaje (learning rate) = 0.3, factor de descuento (discount factor) = 0.9, epsilon inicial para exploración = 1.0, tasa de decaimiento de epsilon = 0.0003.
+Parámetros: Tasa de aprendizaje (learning rate) = 0.2, factor de descuento (discount factor) = 0.9, epsilon inicial para exploración = 1.0, tasa de decaimiento de epsilon = 0.001.
 Resultados:
 
 *Exploración vs. Explotación*: Se observó un desequilibrio con predominio de la exploración, lo que resultó en un bajo rendimiento en términos de recompensa acumulada.
