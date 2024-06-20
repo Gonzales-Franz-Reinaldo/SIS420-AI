@@ -1,8 +1,9 @@
 import gymnasium as gym
 import numpy as np
 import matplotlib.pyplot as plt
+import pickle
 
-def train(episodes):
+def train(episodes, save_q_table=True, save_plot=True):
     # Inicializa el entorno
     env = gym.make('CliffWalking-v0')
 
@@ -60,7 +61,7 @@ def train(episodes):
         # Registra la recompensa obtenida en este episodio
         rewards_por_episode[i] = reward
 
-        # Imprime el progreso cada 10 episodios
+        # Imprime el progreso cada 50 episodios
         if (i + 1) % 50 == 0:
             print(f"Episodio: {i + 1} - Recompensa: {rewards_por_episode[i]}")
 
@@ -68,19 +69,59 @@ def train(episodes):
     env.close()
 
     # Imprime la tabla Q final para la inspección
-    print(f"Mejor Q: {q_table}")
+    print("Tabla Q resultante después del entrenamiento:")
+    print(q_table)
 
-    # Calcula y muestra la suma de recompensas acumuladas en bloques de 10 episodios
+    # Calcula y muestra la suma de recompensas acumuladas en bloques de 100 episodios
     suma_rewards = np.zeros(episodes)
     for t in range(episodes):
         suma_rewards[t] = np.sum(rewards_por_episode[max(0, t - 100):(t + 1)])
 
     plt.plot(suma_rewards)
     plt.xlabel('Episodios')
-    plt.ylabel('Suma de recompensas en los últimos 10 episodios')
-    plt.title('Progreso del entrenamiento')
+    plt.ylabel('Suma de recompensas acumuladas')
+    plt.title('Evolución de las recompensas acumuladas durante el entrenamiento')
+    if save_plot:
+        plt.savefig('recompensas_cliffwalking.png')
     plt.show()
 
-# Ejecutar la función de entrenamiento si el script es el programa principal
-if __name__ == '__main__':
-    train(5000)
+    # Guardar la tabla Q en un archivo pkl
+    if save_q_table:
+        with open('cliffwalking_qlearning.pkl', 'wb') as f:
+            pickle.dump(q_table, f)
+        print("Tabla Q guardada en 'cliffwalking_qlearning.pkl'.")
+
+def exploit(q_table_file='cliffwalking_qlearning.pkl', num_runs=10):
+    # Cargar la tabla Q desde el archivo
+    with open(q_table_file, 'rb') as f:
+        q_table = pickle.load(f)
+    print("Tabla Q cargada desde el archivo.")
+
+    for run in range(num_runs):
+        # Inicializa el entorno
+        env = gym.make('CliffWalking-v0', render_mode='human')
+        state = env.reset()[0]
+        terminated = False
+        truncated = False
+        rewards = 0
+
+        # Exploitation loop
+        while not terminated and not truncated:
+            action = np.argmax(q_table[state, :])
+            new_state, reward, terminated, truncated, _ = env.step(action)
+            rewards += reward
+            state = new_state
+            env.render()
+        
+        print(f"Run {run + 1}: Recompensa total durante la explotación: {rewards}")
+        env.close()
+
+if __name__ == "__main__":
+    #! Cambia este valor a True para cargar el archivo pkl. Q-table y explotar directamente o FALSE para entrenar de nuevo.
+    exploit_directly = True  # Para explotar con el archivo pkl de Q-Table
+    # exploit_directly = False  # Para volver a entrenar al modelo
+
+    if exploit_directly:
+        exploit(num_runs=10)  # Ajusta el número de ejecuciones de explotación aquí
+    else:
+        train(5000)  # Ajusta el número de episodios para el entrenamiento
